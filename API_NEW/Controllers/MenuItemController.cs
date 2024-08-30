@@ -2,6 +2,7 @@
 using API_NEW.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace API_NEW.Controllers
@@ -22,11 +23,33 @@ namespace API_NEW.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMenuItems()
         {
-            _response.Result = _db.MenuItems;
+            var menuItems = await _db.MenuItems.ToListAsync();
+
+            _response.Result = menuItems;
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
         }
 
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetMenuItem(int id)
+        {
+            if(id == 0)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;   
+                return BadRequest(_response);
+            }
+            MenuItem menuItem = await _db.MenuItems.FirstOrDefaultAsync(u => u.Id == id);  
+            if (menuItem == null)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound; 
+                return NotFound(_response);
+            }
+            _response.Result = menuItem;
+            _response.StatusCode = HttpStatusCode.OK; 
+            return Ok(_response) ;
+           
+        }
 
     }
 }
