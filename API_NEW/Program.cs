@@ -1,4 +1,5 @@
 using API_NEW.Data;
+using API_NEW.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultDbConnection"));
 });
 
-builder.Services.AddIdentity<IdentityUser,  IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>(); 
+builder.Services.AddIdentity<ApplicationUser,  IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>(); 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
