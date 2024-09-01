@@ -2,8 +2,11 @@ using API_NEW.Data;
 using API_NEW.Models;
 using API_NEW.Services;
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +30,27 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
-}); 
+});
+
+var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
+builder.Services.AddAuthentication(u =>
+{
+    u.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    u.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(u =>
+{
+    u.RequireHttpsMetadata = false;
+    u.SaveToken = true;
+    u.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
+builder.Services.AddCors(); 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,6 +68,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(o => o.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()); 
 app.UseAuthentication(); 
 app.UseAuthorization();
 
