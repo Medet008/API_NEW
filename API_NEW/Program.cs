@@ -18,7 +18,16 @@ builder.Services.AddSingleton(u => new BlobServiceClient(
 
 builder.Services.AddSingleton<IBlobService, BlobService>(); 
 
-builder.Services.AddIdentity<ApplicationUser,  IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>(); 
+builder.Services.AddIdentity<ApplicationUser,  IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 1;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+}); 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
