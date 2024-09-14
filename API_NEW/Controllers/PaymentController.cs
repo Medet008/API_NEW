@@ -2,6 +2,7 @@
 using API_NEW.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System.Net;
 
 namespace RedMango_API.Controllers
@@ -35,7 +36,22 @@ namespace RedMango_API.Controllers
             }
 
             #region Create Payment Intent
+            StripeConfiguration.ApiKey = _congifuration["StripeSettings:SecretKey"];
+            shoppingCart.CartTotal = shoppingCart.CartItems.Sum(u => u.Quantity * u.MenuItem.Price);
 
+            PaymentIntentCreateOptions options = new()
+            {
+                Amount = (int)(shoppingCart.CartTotal * 100),
+                Currency = "usd",
+                PaymentMethodTypes = new List<string>
+                  {
+                    "card",
+                  },
+            };
+            PaymentIntentService service = new();
+            PaymentIntent response = service.Create(options);
+            shoppingCart.StripePaymentIntentId = response.Id;
+            shoppingCart.ClientSecret = response.ClientSecret;
 
             #endregion
 
